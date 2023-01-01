@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 
 import MoviesList from "./components/MoviesList";
 import "./App.css";
@@ -11,7 +11,8 @@ function App() {
   //  Get Request to fetch data from API
   //  We can put async in function to remove then and instead
   //  use await variable
-  async function fetchMoviesHandler() {
+  const fetchMoviesHandler = useCallback(async () => {
+    // async function fetchMoviesHandler() {
     setIsLoading(true);
     setErrorState(null);
 
@@ -45,17 +46,40 @@ function App() {
       setErrorState(error.message);
     }
     setIsLoading(false);
-  }
+    // }
+  }, []);
+  /**
+   * We don't pass any dependencies as this function don't depend on any
+   * external dependencies. If we have some dependencies we will have defined it
+   * here.
+   */
 
-  let content = <p>Found no movies.</p>
-  if(movies.length > 0) {
-    content = <MoviesList movies={movies}/>
+  //  As soon as web page loads we call the API to load movies
+  //  This is a good practice which is used in modern application.
+  //  This will run only once when the APP components loads in browser =
+  //  It will not re-render on change in the state
+  useEffect(() => {
+    fetchMoviesHandler();
+  }, [fetchMoviesHandler]);
+  /**
+   * In useEffect we need to pass dependencies
+   * but it will result into infinite loop
+   * because functions are object and it points to reference and as soon as any
+   * state changes useEffect will be called again and again
+   * Solution -
+   * 1. We can omit and pass empty dependency array
+   * 2. Wrap fetchMoviesHandler using useCallback Hook
+   */
+
+  let content = <p>Found no movies.</p>;
+  if (movies.length > 0) {
+    content = <MoviesList movies={movies} />;
   }
-  if(errorState) {
-    content = <p>{errorState}</p>
+  if (errorState) {
+    content = <p>{errorState}</p>;
   }
-  if(isLoading) {
-    content = <p>Loading...</p>
+  if (isLoading) {
+    content = <p>Loading...</p>;
   }
 
   return (
