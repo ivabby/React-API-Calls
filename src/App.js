@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 
 import MoviesList from "./components/MoviesList";
+import AddMovie from "./components/AddMovie";
 import "./App.css";
 
 function App() {
@@ -20,7 +21,9 @@ function App() {
     // Handling Errors when calling API's
     //  If using async await we use try catch block
     try {
-      const response = await fetch("https://swapi.dev/api/films");
+      const response = await fetch(
+        "https://react-http-api-e155c-default-rtdb.asia-southeast1.firebasedatabase.app/movies.json"
+      );
       //  Checking if response is containing error
       //  We can also check HTTP Status Code
       //  But then we need to check manually all the codes which will
@@ -32,6 +35,7 @@ function App() {
       //  Converting response into JSON to parse it
       const data = await response.json();
 
+      /** 
       const transformedMovies = data.results.map((movieData) => {
         return {
           id: movieData.episode_id,
@@ -40,8 +44,20 @@ function App() {
           openingText: movieData.opening_crawl,
         };
       });
+      */
+      console.log(data);
+      const loadedMovies = [];
+      for (const key in data) {
+        loadedMovies.push({
+          id: key,
+          title: data[key].title,
+          releaseDate: data[key].releaseDate,
+          openingText: data[key].openingText,
+        });
+      }
 
-      setMovies(transformedMovies);
+      // setMovies(transformedMovies);
+      setMovies(loadedMovies);
     } catch (error) {
       setErrorState(error.message);
     }
@@ -82,8 +98,33 @@ function App() {
     content = <p>Loading...</p>;
   }
 
+  /**
+   * 
+   * @param {Passing Movie object} movie 
+   * Here we used POST request to update the real time database in firebase
+   * This helps us to save data in DB.
+   */
+  async function addMovieHandler(movie) {
+    const response = await fetch(
+      "https://react-http-api-e155c-default-rtdb.asia-southeast1.firebasedatabase.app/movies.json",
+      {
+        method: "POST",
+        body: JSON.stringify(movie),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    const data = await response.json();
+    console.log(data);
+  }
+
   return (
     <React.Fragment>
+      <section>
+        <AddMovie onAddMovie={addMovieHandler} />
+      </section>
       <section>
         <button onClick={fetchMoviesHandler}>Fetch Movies</button>
       </section>
