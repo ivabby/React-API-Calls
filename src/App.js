@@ -21,6 +21,9 @@ function App() {
     try {
       const response = await fetch("https://swapi.dev/api/films");
       //  Checking if response is containing error
+      //  We can also check HTTP Status Code
+      //  But then we need to check manually all the codes which will
+      //  increase the code to be written
       if (!response.ok) {
         throw new Error(`Something went wrong`);
       }
